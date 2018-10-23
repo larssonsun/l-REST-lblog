@@ -7,7 +7,7 @@ from aiohttp import web
 from aiohttp_apispec import (docs, marshal_with, setup_aiohttp_apispec,
                              use_kwargs)
 from marshmallow import Schema, fields
-
+from model.db import init_db
 from settings import PACKAGE_NAME, load_config
 
 log = logging.getLogger(__name__)
@@ -48,7 +48,7 @@ async def init_app(config):
     setup_routes(app)
     setup_aiohttp_apispec(app=app, title="My Documentation", version="v1", url="/api/docs/api-docs"
                           )
-    # db_pool = await init_db(app)
+    db_pool = await init_db(app, config)
     # redis_pool = await setup_redis(app)
     log.debug(app['config'])
     return app
@@ -56,17 +56,15 @@ async def init_app(config):
 
 def main(configpath):
     config = load_config(configpath)
-    logging.basicConfig(level=logging.DEBUG)
+    logging.basicConfig(level=config["log"]["LOG_LEVEL"])
     app = init_app(config)
-    web.run_app(app)
+    web.run_app(app, host=config["web"]["WEB_HOST"], port=config["web"]["WEB_PORT"])
 
 
 if __name__ == '__main__':
     import argparse
     parser = argparse.ArgumentParser()
     parser.add_argument("-c", "--config", help="Provide path to config file")
-    # parser.add_argument("--host", help="Provide an address for web server")
-    # parser.add_argument("--port", help="Provide an port for web server")
     args = parser.parse_args()
 
     if args.config:

@@ -3,10 +3,8 @@
 
 import pathlib
 import pytoml as toml
-# import os
 
-BASE_DIR = pathlib.Path(__file__).parent.parent
-# os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+pathlib.Path('__file__').parent.parent
 PACKAGE_NAME = 'app'
 
 
