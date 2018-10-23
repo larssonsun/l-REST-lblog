@@ -48,7 +48,7 @@ async def init_app(config):
     setup_routes(app)
     setup_aiohttp_apispec(app=app, title="My Documentation", version="v1", url="/api/docs/api-docs"
                           )
-    db_pool = await init_db(app, config)
+    db_pool = await init_db(app)
     # redis_pool = await setup_redis(app)
     log.debug(app['config'])
     return app

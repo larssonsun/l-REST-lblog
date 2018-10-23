@@ -5,16 +5,15 @@ import sqlalchemy as sa
 from aiomysql.sa import create_engine
 
 
-async def init_db(app, config):
-    engine = await create_engine(user=config['DB_USER'], db=config['DB_NAME'],
-                                 host=config['DB_HOST'], password=config['DB_PASS'])
+async def init_db(app):
+    confdb = app['config']['database']
+    engine = await create_engine(user=confdb['DB_USER'], db=confdb['DB_NAME'],
+                                 host=confdb['DB_HOST'], port=confdb['DB_PORT'], password=confdb['DB_PASS'])
 
-    app['db_pool'] = engine.pool
-    return pool
+    async def close_db(app):
+        app['db_pool'].close()
+        await app['db_pool'].wait_closed()
 
-
-# async def create_pool(self):
-#     pool = await aiomysql.create_pool(host=self.__host, port=self.__port, user=self.__user, password=self.__pwd,
-#                                       db=self.__db, loop=self.__loop, charset=self.__charset, autocommit=self.__autocommit, maxsize=self.__maxsize,
-#                                       minsize=self.__minsize)
-#     return pool
+    app.on_cleanup.append(close_db)
+    app['db_pool'] = engine
+    return engine
