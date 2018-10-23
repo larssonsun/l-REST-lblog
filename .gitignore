@@ -1,0 +1,10 @@
+__pycache__/
+*.conf
+*.code-workspace
+.vscode
+env/
+test/*tst*.py
+app/config/settings.py
+
+
+
