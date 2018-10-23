@@ -5,6 +5,3 @@ __pycache__/
 env/
 test/*tst*.py
 app/config/settings.py
-
-
-
