@@ -1,5 +1,6 @@
 __pycache__/
 *.conf
+*.toml
 *.code-workspace
 .vscode
 env/
