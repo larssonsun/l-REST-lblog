@@ -7,7 +7,7 @@ from aiohttp import web
 from aiohttp_apispec import (docs, marshal_with, setup_aiohttp_apispec,
                              use_kwargs)
 from marshmallow import Schema, fields
-from model.db import init_db
+from model.db import init_db, init_redis
 from settings import PACKAGE_NAME, load_config
 
 log = logging.getLogger(__name__)
@@ -49,7 +49,7 @@ async def init_app(config):
     setup_aiohttp_apispec(app=app, title="My Documentation", version="v1", url="/api/docs/api-docs"
                           )
     db_pool = await init_db(app)
-    # redis_pool = await setup_redis(app)
+    redis_pool = await init_redis(app)
     log.debug(app['config'])
     return app
 

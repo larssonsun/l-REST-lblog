@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
+import aioredis
 import sqlalchemy as sa
 from aiomysql.sa import create_engine
 
@@ -17,3 +18,19 @@ async def init_db(app):
     app.on_cleanup.append(close_db)
     app['db_pool'] = engine
     return engine
+
+
+async def init_redis(app):
+    confredis = app['config']['redis']
+    pool = await aioredis.create_redis_pool(
+        address=(confredis['REDIS_HOST'], confredis['REDIS_PORT']), db=confredis['REDIS_DB'], password=confredis.get('REDIS_PASS'),
+        minsize=confredis['REDIS_MINSIZE'], maxsize=confredis['REDIS_MAXSIZE']
+    )
+
+    async def close_redis(app):
+        pool.close()
+        await pool.wait_closed()
+
+    app.on_cleanup.append(close_redis)
+    app['redis_pool'] = pool
+    return pool
