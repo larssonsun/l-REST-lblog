@@ -1,8 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-import decimal
-from json import JSONEncoder, dumps
 
 from aiohttp import web
 from aiohttp_apispec import docs, marshal_with, use_kwargs

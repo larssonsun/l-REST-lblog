@@ -1,6 +1,10 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
+import decimal
+from json import JSONEncoder, dumps
+
+
 class DecimalEncoder(JSONEncoder):
     def default(self, o):
         if isinstance(o, decimal.Decimal):
