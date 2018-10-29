@@ -19,27 +19,27 @@ class ResponseSchema(Schema):
     data = fields.Dict()
 
 
-class Comment(web.View):
-    @docs(
-        tags=["comment"],
-        summary="get all comments",
-        description="get all content from all comments.",
-    )
-    # @use_kwargs(RequestSchema(strict=True))
-    @marshal_with(ResponseSchema(), 200)
-    async def get(request):
-        comments = await get_comments(request.app["db_pool"])
-        return web.json_response(
-            {"msg": "done", "data": comments}, dumps=myjsondumps)
+@docs(
+    tags=["comment"],
+    summary="get all comments",
+    description="get all content from all comments.",
+)
+@use_kwargs(PatchComment_HideStatus_Schema(strict=True))
+@marshal_with(ResponseSchema(), 200)
+async def get(request):
+    comments = await get_comments(request.app["db_pool"])
+    return web.json_response(
+        {"msg": "done", "data": comments}, dumps=myjsondumps)
 
-    @docs(
-        tags=["comment"],
-        summary="update the comment's status",
-        description="get one comment by id, then update the status by status.",
-    )
-    @use_kwargs(PatchComment_HideStatus_Schema(strict=True))
-    @marshal_with(ResponseSchema(), 200)
-    async def patch(request):
-        payload = request["data"]
-        return web.json_response(
-            {"msg": "done", "data": payload}, dumps=myjsondumps)
+
+@docs(
+    tags=["comment"],
+    summary="update the comment's status",
+    description="get one comment by id, then update the status by status.",
+)
+@use_kwargs(PatchComment_HideStatus_Schema(strict=True))
+@marshal_with(ResponseSchema(), 200)
+async def patch(request):
+    payloadDict = request["data"]
+    return web.json_response(
+        {"msg": "done", "data": payloadDict}, dumps=myjsondumps)

@@ -7,22 +7,20 @@ from aiohttp import web
 
 from db import init_db, init_redis
 from routers.lblog import setup_routes
-from settings import PACKAGE_NAME, load_config, swagger
-from aiohttp_apispec import validation_middleware
-
+from settings import PACKAGE_NAME, load_config, setup_apispec
 
 log = logging.getLogger(__name__)
 
 
 async def init_app(config):
+    log.debug(config)
     app = web.Application()
     app['config'] = config
     setup_routes(app)
-    app.middlewares.append(validation_middleware)
+    setup_apispec(app)
     db_pool = await init_db(app)
     redis_pool = await init_redis(app)
-    app.on_startup.append(swagger)
-    log.debug(app['config'])
+
     return app
 
 
