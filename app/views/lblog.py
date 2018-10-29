@@ -24,7 +24,7 @@ class ResponseSchema(Schema):
     summary="get all comments",
     description="get all content from all comments.",
 )
-@use_kwargs(PatchComment_HideStatus_Schema(strict=True))
+# @use_kwargs(RequestSchema(strict=True))
 @marshal_with(ResponseSchema(), 200)
 async def get(request):
     comments = await get_comments(request.app["db_pool"])
