@@ -31,8 +31,24 @@ def setup_apispec(app):
         app.on_startup.append(swagger)
 
 
-async def swagger(app):
+@web.middleware
+async def my_middleware(request, handler):
+    try:
+        # authorate token
+        if re.match("/api/docs/swagger\w*", request.path):
+            pass
+        elif not request.match_info.get("data"):
+            raise web.HTTPUnauthorized
+        else:
+            cfg_web = request.app["config"]["web"]
+            if hash_sha256(cfg_web["WEB_CLIENT_TOKEN"], cfg_web["WEB_CLIENT_TOKEN_HASHKEY"]) != request.match_info["data"].get("token"):
+                raise web.HTTPNotAcceptable
+         return await handler(request)
+    except web.HTTPException as ex:
+        return web.json_response(status=ex.status)
 
+
+async def swagger(app):
     def setAddonParms(route):
         if route.method not in ("GET", "POST", "PUT", "DELETE", "PATCH"):
             return None
