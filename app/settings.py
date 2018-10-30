@@ -20,8 +20,15 @@ def load_config(path):
 
 
 def setup_apispec(app):
-    setup_aiohttp_apispec(app=app, title="L-blog REST API Documentation",
-                          version="v1", url="/api/docs/json")
+    setup_aiohttp_apispec(
+        app=app,
+        title="L-blog REST API Documentation",
+        version="v1",
+        info={"description": "some markdown description"},
+        securityDefinitions={
+            "user": {"type": "apiKey", "name": "Authorization", "in": "header"}
+        },
+        url="/api/docs/json")
 
     app.middlewares.extend([
         validation_middleware
@@ -31,21 +38,22 @@ def setup_apispec(app):
         app.on_startup.append(swagger)
 
 
-@web.middleware
-async def my_middleware(request, handler):
-    try:
-        # authorate token
-        if re.match("/api/docs/swagger\w*", request.path):
-            pass
-        elif not request.match_info.get("data"):
-            raise web.HTTPUnauthorized
-        else:
-            cfg_web = request.app["config"]["web"]
-            if hash_sha256(cfg_web["WEB_CLIENT_TOKEN"], cfg_web["WEB_CLIENT_TOKEN_HASHKEY"]) != request.match_info["data"].get("token"):
-                raise web.HTTPNotAcceptable
-         return await handler(request)
-    except web.HTTPException as ex:
-        return web.json_response(status=ex.status)
+# @web.middleware
+# async def my_middleware(request, handler):
+# try:
+#     # authorate token
+#     if re.match("/api/docs/swagger\w*", request.path):
+#         return await handler(request)
+#     elif not request.match_info.get("data"):
+#         raise web.HTTPUnauthorized
+#     else:
+#         cfg_web = request.app["config"]["web"]
+#         if hash_sha256(cfg_web["WEB_CLIENT_TOKEN"], cfg_web["WEB_CLIENT_TOKEN_HASHKEY"]) != request.match_info["data"].get("token"):
+#             raise web.HTTPNotAcceptable
+#         else
+#             return await handler(request)
+# except web.HTTPException as ex:
+# return web.json_response(status=ex.status)
 
 
 async def swagger(app):
@@ -60,8 +68,6 @@ async def swagger(app):
             return None
         parms = method.get("parameters")
         parms.extend([{'in': 'header', 'name': 'Accept-version',
-                       'required': True, 'type': 'string'},
-                      {'in': 'header', 'name': 'Authorization',
                        'required': True, 'type': 'string'}])
 
     [setAddonParms(route) for route in app.router.routes()]
