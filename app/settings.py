@@ -2,12 +2,14 @@
 # -*- coding: utf-8 -*-
 
 import pathlib
-from aiohttp import web
+import re
+
 import pytoml as toml
+from aiohttp import web
 from aiohttp_apispec import setup_aiohttp_apispec, validation_middleware
 from aiohttp_swagger import setup_swagger
+
 from utils import hash_sha256
-import re
 
 pathlib.Path(__file__).parent.parent  # __file__ 是用来获得模块所在的路径的，这可能得到的是一个相对路径
 PACKAGE_NAME = 'app'
@@ -31,6 +33,7 @@ def setup_apispec(app):
         url="/api/docs/json")
 
     app.middlewares.extend([
+        my_middleware,
         validation_middleware
     ])
 
@@ -38,22 +41,24 @@ def setup_apispec(app):
         app.on_startup.append(swagger)
 
 
-# @web.middleware
-# async def my_middleware(request, handler):
-# try:
-#     # authorate token
-#     if re.match("/api/docs/swagger\w*", request.path):
-#         return await handler(request)
-#     elif not request.match_info.get("data"):
-#         raise web.HTTPUnauthorized
-#     else:
-#         cfg_web = request.app["config"]["web"]
-#         if hash_sha256(cfg_web["WEB_CLIENT_TOKEN"], cfg_web["WEB_CLIENT_TOKEN_HASHKEY"]) != request.match_info["data"].get("token"):
-#             raise web.HTTPNotAcceptable
-#         else
-#             return await handler(request)
-# except web.HTTPException as ex:
-# return web.json_response(status=ex.status)
+@web.middleware
+async def my_middleware(request, handler):
+    try:
+        if re.match("/api/docs/swagger\w*", request.path):
+            return await handler(request)
+
+        # authorate apikey
+        apikey = request.headers.get("Authorization")
+        if not apikey:
+            raise web.HTTPUnauthorized
+
+        cfg_web = request.app['config']['web']
+        if not apikey or hash_sha256(cfg_web["WEB_CLIENT_TOKEN"], cfg_web["WEB_CLIENT_TOKEN_HASHKEY"]) != apikey:
+            raise web.HTTPNotAcceptable
+
+        return await handler(request)
+    except web.HTTPException as ex:
+        return web.json_response(status=ex.status)
 
 
 async def swagger(app):
