@@ -11,7 +11,7 @@ from utils import myjsondumps
 
 
 class BaseRequestSchema(Schema):
-    version = fields.Str(description="api version", required=True)
+    Version = fields.Str(description="api version", required=True)
 
 class PatchComment_HideStatus_Schema(Schema):
     hide_status = fields.Int(description="comments hide_status")
