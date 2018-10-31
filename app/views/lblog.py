@@ -10,10 +10,11 @@ from models.lblog import get_comments
 from utils import myjsondumps
 
 
-class BaseRequestSchema(Schema):
+class RequestHeaderSchema(Schema):
     Version = fields.Str(description="api version", required=True)
 
-class PatchComment_HideStatus_Schema(Schema):
+
+class RequestPatchCommentHideStatusSchema(Schema):
     hide_status = fields.Int(description="comments hide_status")
 
 
@@ -27,8 +28,7 @@ class ResponseSchema(Schema):
     summary="get all comments",
     description="get all content from all comments.",
 )
-# @use_kwargs(RequestSchema(strict=True))
-@use_kwargs(BaseRequestSchema(strict=True), locations=["headers"])
+@use_kwargs(RequestHeaderSchema(strict=True), locations=["headers"])
 @marshal_with(ResponseSchema(), 200)
 async def get(request):
     comments = await get_comments(request.app["db_pool"])
@@ -41,8 +41,8 @@ async def get(request):
     summary="update the comment's status",
     description="get one comment by id, then update the status by status.",
 )
-@use_kwargs(BaseRequestSchema(strict=True), locations=["headers"])
-@use_kwargs(PatchComment_HideStatus_Schema(strict=True))
+@use_kwargs(RequestHeaderSchema(strict=True), locations=["headers"])
+@use_kwargs(RequestPatchCommentHideStatusSchema(strict=True), locations=["body"])
 @marshal_with(ResponseSchema(), 200)
 async def patch(request):
     payloadDict = request["data"]
