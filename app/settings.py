@@ -62,21 +62,6 @@ async def my_middleware(request, handler):
 
 
 async def swagger(app):
-    # def setAddonParms(route):
-    #     if route.method not in ("GET", "POST", "PUT", "DELETE", "PATCH"):
-    #         return None
-    #     path = app["swagger_dict"]["paths"].get(route.resource.canonical)
-    #     if not path:
-    #         return None
-    #     method = path.get(str.lower(route.method))
-    #     if not method:
-    #         return None
-    #     parms = method.get("parameters")
-    #     parms.extend([{'in': 'header', 'name': 'Accept-version',
-    #                    'required': True, 'type': 'string'}])
-
-    # [setAddonParms(route) for route in app.router.routes()]
-
     setup_swagger(
         app=app, swagger_url='/api/docs/swagger', swagger_info=app['swagger_dict']
     )
